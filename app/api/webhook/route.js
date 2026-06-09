@@ -1,4 +1,4 @@
-import path from 'path'
+import { processMessage } from '../../../src/ai/claudeClient'
 
 export const runtime = 'nodejs'
 
@@ -10,7 +10,6 @@ export async function POST(request) {
     return Response.json({ error: 'Invalid JSON' }, { status: 400 })
   }
 
-  // In MOCK_MODE skip signature verification (default for demo)
   const isMock = process.env.MOCK_MODE !== 'false'
 
   if (!isMock) {
@@ -20,7 +19,6 @@ export async function POST(request) {
     }
   }
 
-  const { processMessage } = require(path.resolve('src/ai/claudeClient'))
   const results = []
 
   if (Array.isArray(body.events)) {
