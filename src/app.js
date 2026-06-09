@@ -59,9 +59,13 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  logger.info(`smileChatBot listening on port ${PORT}`);
-  logger.info(`Environment: ${process.env.NODE_ENV || 'development'} | MOCK_MODE: ${process.env.MOCK_MODE}`);
-});
+
+// Listen only when run directly (not as Vercel serverless function)
+if (require.main === module) {
+  app.listen(PORT, () => {
+    logger.info(`smileChatBot listening on port ${PORT}`);
+    logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
+  });
+}
 
 module.exports = app;

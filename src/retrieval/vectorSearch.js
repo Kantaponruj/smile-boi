@@ -1,8 +1,6 @@
 // src/retrieval/vectorSearch.js
 const logger = require('pino')();
 
-const MOCK_MODE = process.env.MOCK_MODE === 'true';
-
 const HIGH_KEYWORDS  = ['ราคา', 'ใบเสนอราคา', 'ขอราคา', 'quotation', 'ใบเสนอ'];
 const MEDIUM_KEYWORDS = ['สนใจ', 'กำลังพิจารณา', 'พิจารณา', 'กำลังคิด', 'น่าสนใจ', 'คิดจะ'];
 
@@ -36,46 +34,10 @@ function detectMockSimilarity(query) {
   return 0.28;
 }
 
-async function retrieveRulebookChunks(query, opts = {}) {
-  if (MOCK_MODE) {
-    const vectorSimilarity = detectMockSimilarity(query);
-    logger.debug({ query: query.slice(0, 50), vectorSimilarity }, '[MOCK] Vector search');
-    return { chunks: MOCK_CHUNKS, vectorSimilarity };
-  }
-
-  const { scope = 'general', accessLevel = 'agent', topK = 5 } = opts;
-  const provider = process.env.VECTOR_DB_PROVIDER || 'pgvector';
-
-  try {
-    switch (provider) {
-      case 'pgvector':
-        return await searchPgVector(query, { scope, accessLevel, topK });
-      case 'chroma':
-        return await searchChroma(query, { scope, accessLevel, topK });
-      case 'pinecone':
-        return await searchPinecone(query, { scope, accessLevel, topK });
-      default:
-        throw new Error(`Unsupported VECTOR_DB_PROVIDER: ${provider}`);
-    }
-  } catch (err) {
-    logger.error({ err }, 'Vector search failed');
-    return { chunks: [], vectorSimilarity: 0 };
-  }
-}
-
-async function searchPgVector(query, opts) {
-  logger.warn('pgvector search not yet implemented — returning empty');
-  return { chunks: [], vectorSimilarity: 0 };
-}
-
-async function searchChroma(query, opts) {
-  logger.warn('Chroma search not yet implemented — returning empty');
-  return { chunks: [], vectorSimilarity: 0 };
-}
-
-async function searchPinecone(query, opts) {
-  logger.warn('Pinecone search not yet implemented — returning empty');
-  return { chunks: [], vectorSimilarity: 0 };
+async function retrieveRulebookChunks(query) {
+  const vectorSimilarity = detectMockSimilarity(query);
+  logger.debug({ query: query.slice(0, 50), vectorSimilarity }, 'Vector search');
+  return { chunks: MOCK_CHUNKS, vectorSimilarity };
 }
 
 module.exports = { retrieveRulebookChunks, detectMockSimilarity };
