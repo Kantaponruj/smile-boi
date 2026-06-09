@@ -7,11 +7,12 @@ const MOCK_MODE = process.env.MOCK_MODE === 'true';
 let pool;
 if (!MOCK_MODE) {
   pool = new Pool({ connectionString: process.env.DATABASE_URL });
+} else {
+  if (!global.__mockLogs) global.__mockLogs = [];
 }
 
 async function logTagging({ case_id, output, agent_id }) {
   if (MOCK_MODE) {
-    if (!global.__mockLogs) global.__mockLogs = [];
     global.__mockLogs.push({
       type: 'tagged',
       case_id,
@@ -54,12 +55,12 @@ async function logTagging({ case_id, output, agent_id }) {
     return result.rows[0].id;
   } catch (err) {
     logger.error({ err, case_id }, 'Failed to save tagging log');
+    return null;
   }
 }
 
 async function logRefusal({ case_id, ai_suggestion, refusal_reason, escalated_to, confidence_final }) {
   if (MOCK_MODE) {
-    if (!global.__mockLogs) global.__mockLogs = [];
     global.__mockLogs.push({
       type: 'refused',
       case_id,
@@ -82,13 +83,14 @@ async function logRefusal({ case_id, ai_suggestion, refusal_reason, escalated_to
     return result.rows[0].id;
   } catch (err) {
     logger.error({ err, case_id }, 'Failed to save refusal log');
+    return null;
   }
 }
 
 async function logCorrection({ case_id, tagging_log_id, ai_suggested_tag, human_corrected_tag, corrected_by, correction_reason }) {
   if (MOCK_MODE) {
-    if (!global.__mockLogs) global.__mockLogs = [];
     global.__mockLogs.push({ type: 'corrected', case_id, ai_suggested_tag, human_corrected_tag, corrected_by, correction_reason, timestamp: new Date().toISOString() });
+    logger.debug({ case_id, ai_suggested_tag, human_corrected_tag }, '[MOCK] Correction log saved');
     return `mock-correction-${Date.now()}`;
   }
 
@@ -101,6 +103,7 @@ async function logCorrection({ case_id, tagging_log_id, ai_suggested_tag, human_
     return result.rows[0].id;
   } catch (err) {
     logger.error({ err, case_id }, 'Failed to save correction log');
+    return null;
   }
 }
 
