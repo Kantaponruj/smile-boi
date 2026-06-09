@@ -95,6 +95,10 @@ describe('calculateConfidence', () => {
   test('throws on non-number input', () => {
     expect(() => calculateConfidence('high', 0.8)).toThrow();
   });
+
+  test('throws on out-of-range input (> 1)', () => {
+    expect(() => calculateConfidence(1.5, 0.8)).toThrow();
+  });
 });
 
 describe('decideAction', () => {
@@ -111,4 +115,11 @@ describe('buildRefusalOutput', () => {
     expect(r.confidence_signal.level).toBe('low');
     expect(r.missing_information).toBe('ข้อความกำกวม');
   });
+});
+
+describe('shouldEscalate', () => {
+  const { shouldEscalate } = require('../src/validation/confidenceEngine');
+  test('low → true', () => expect(shouldEscalate({ level: 'low' })).toBe(true));
+  test('medium → false', () => expect(shouldEscalate({ level: 'medium' })).toBe(false));
+  test('high → false', () => expect(shouldEscalate({ level: 'high' })).toBe(false));
 });

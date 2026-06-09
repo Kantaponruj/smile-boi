@@ -8,6 +8,9 @@ function calculateConfidence(vectorSimilarity, llmSelfScore) {
   if (typeof vectorSimilarity !== 'number' || typeof llmSelfScore !== 'number') {
     throw new Error('Confidence scores must be numbers');
   }
+  if (vectorSimilarity < 0 || vectorSimilarity > 1 || llmSelfScore < 0 || llmSelfScore > 1) {
+    throw new Error('Confidence scores must be between 0 and 1');
+  }
   const weightedFinal = vectorSimilarity * WEIGHT_VECTOR + llmSelfScore * WEIGHT_LLM;
   const level = getConfidenceLevel(weightedFinal);
   return {

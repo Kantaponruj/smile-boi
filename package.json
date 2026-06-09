@@ -43,6 +43,7 @@
   },
   "jest": {
     "testEnvironment": "node",
+    "testPathIgnorePatterns": ["/node_modules/", "/boi_x_smile_SDD/"],
     "collectCoverageFrom": [
       "src/**/*.js",
       "!src/app.js"
