@@ -10,12 +10,13 @@
     "test:coverage": "jest --coverage"
   },
   "dependencies": {
-    "next": "^14.2.5",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
+    "@vercel/kv": "^3.0.0",
     "ajv": "^8.17.1",
     "ajv-formats": "^3.0.1",
-    "pino": "^9.3.1"
+    "next": "^14.2.5",
+    "pino": "^9.3.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.19",
@@ -30,8 +31,14 @@
   },
   "jest": {
     "testEnvironment": "node",
-    "testPathIgnorePatterns": ["/node_modules/", "/boi_x_smile_SDD/", "/.next/"],
-    "collectCoverageFrom": ["src/**/*.js"],
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/boi_x_smile_SDD/",
+      "/.next/"
+    ],
+    "collectCoverageFrom": [
+      "src/**/*.js"
+    ],
     "coverageThreshold": {
       "global": {
         "branches": 70,
