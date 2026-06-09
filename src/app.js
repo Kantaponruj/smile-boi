@@ -31,6 +31,8 @@ app.use(pinoHttp({ logger }));
 app.use('/webhook', express.raw({ type: 'application/json' }));
 app.use(express.json());
 
+app.use(express.static(require('path').join(__dirname, '../public')));
+
 app.use('/webhook', webhookRouter);
 app.use('/health', healthRouter);
 
