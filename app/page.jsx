@@ -229,7 +229,7 @@ export default function ChatPage() {
 
   return (
     <div className="flex items-center justify-center min-h-screen p-4"
-         style={{ background: 'linear-gradient(135deg,#0f0f1a 0%,#1a1a2e 60%,#1a2040 100%)' }}>
+         style={{ background: '#d1d5db' }}>
 
       <div className="w-full max-w-sm flex flex-col rounded-3xl overflow-hidden"
            style={{
