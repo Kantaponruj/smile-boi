@@ -11,7 +11,7 @@ function getSql() {
 }
 
 function dbQuery(text, params) {
-  return getSql()(text, params);
+  return getSql().query(text, params);
 }
 
 module.exports = { dbQuery };

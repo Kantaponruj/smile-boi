@@ -28,9 +28,9 @@ describe('detectMockSimilarity', () => {
 });
 
 describe('retrieveRulebookChunks (MOCK_MODE)', () => {
-  test('returns 2 chunks for any query', async () => {
+  test('returns 6 chunks for any query', async () => {
     const { chunks, vectorSimilarity } = await retrieveRulebookChunks('test query');
-    expect(chunks).toHaveLength(2);
+    expect(chunks).toHaveLength(6);
     expect(typeof vectorSimilarity).toBe('number');
   });
 
