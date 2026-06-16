@@ -104,4 +104,11 @@ describe('retrieveRulebookChunks (DB mode)', () => {
       [true]
     );
   });
+
+  test('neutral query scores 0.28 (does not match chunk keywords)', async () => {
+    const { retrieveRulebookChunks } = require('../../src/retrieval/vectorSearch');
+    const { vectorSimilarity, chunks } = await retrieveRulebookChunks('สวัสดีครับ');
+    expect(vectorSimilarity).toBe(0.28);
+    expect(chunks[0]._score).toBe(0.28);
+  });
 });

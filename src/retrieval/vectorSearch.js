@@ -35,10 +35,10 @@ function detectMockSimilarity(query) {
   return 0.28;
 }
 
-function scoreChunk(query, chunkContent) {
-  const text = (query + ' ' + chunkContent).toLowerCase();
-  if (HIGH_KEYWORDS.some(kw => text.includes(kw)))   return 0.91;
-  if (MEDIUM_KEYWORDS.some(kw => text.includes(kw))) return 0.67;
+function scoreChunk(query) {
+  const q = query.toLowerCase();
+  if (HIGH_KEYWORDS.some(kw => q.includes(kw)))   return 0.91;
+  if (MEDIUM_KEYWORDS.some(kw => q.includes(kw))) return 0.67;
   return 0.28;
 }
 
@@ -61,7 +61,7 @@ async function retrieveRulebookChunks(query) {
   );
 
   const scoredRows = rows
-    .map(row => ({ ...row, _score: scoreChunk(query, row.content) }))
+    .map(row => ({ ...row, _score: scoreChunk(query) }))
     .sort((a, b) => b._score - a._score);
 
   const vectorSimilarity = scoredRows.length > 0 ? scoredRows[0]._score : 0.28;
@@ -70,4 +70,4 @@ async function retrieveRulebookChunks(query) {
   return { chunks: scoredRows, vectorSimilarity };
 }
 
-module.exports = { retrieveRulebookChunks, detectMockSimilarity, scoreChunk };
+module.exports = { retrieveRulebookChunks, detectMockSimilarity };
