@@ -55,3 +55,50 @@ describe('retrieveRulebookChunks (MOCK_MODE)', () => {
     expect(vectorSimilarity).toBe(0.28);
   });
 });
+
+describe('retrieveRulebookChunks (DB mode)', () => {
+  beforeEach(() => {
+    process.env.MOCK_MODE = 'false';
+    process.env.DATABASE_URL = 'postgresql://mock';
+    jest.resetModules();
+    jest.mock('../../src/db/client', () => ({
+      dbQuery: jest.fn().mockResolvedValue([
+        {
+          id: 'uuid-1',
+          document_id: 'corporate-tagging-rulebook',
+          version: 'v3.0',
+          section_id: '2.3',
+          effective_date: '2026-01-01',
+          active_status: true,
+          scope: 'general',
+          access_level: 'agent',
+          content: '#Quotation_Request — ลูกค้าส่งข้อความขอราคา'
+        }
+      ])
+    }));
+  });
+
+  afterEach(() => {
+    process.env.MOCK_MODE = 'true';
+    delete process.env.DATABASE_URL;
+    jest.resetModules();
+  });
+
+  test('returns rows from DB and a numeric vectorSimilarity', async () => {
+    const { retrieveRulebookChunks } = require('../../src/retrieval/vectorSearch');
+    const { chunks, vectorSimilarity } = await retrieveRulebookChunks('ขอราคา');
+    expect(chunks).toHaveLength(1);
+    expect(chunks[0].section_id).toBe('2.3');
+    expect(typeof vectorSimilarity).toBe('number');
+  });
+
+  test('calls dbQuery with active_status=true', async () => {
+    const { dbQuery } = require('../../src/db/client');
+    const { retrieveRulebookChunks } = require('../../src/retrieval/vectorSearch');
+    await retrieveRulebookChunks('test');
+    expect(dbQuery).toHaveBeenCalledWith(
+      expect.stringContaining('active_status'),
+      [true]
+    );
+  });
+});
