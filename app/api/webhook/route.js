@@ -22,8 +22,7 @@ export async function POST(request) {
     return Response.json({ error: 'Invalid JSON' }, { status: 400 })
   }
 
-  const isMock = process.env.MOCK_MODE !== 'false'
-  if (!isMock) {
+  if (process.env.VERIFY_LINE_SIGNATURE === 'true') {
     const signature = request.headers.get('x-line-signature')
     const secret = process.env.LINE_CHANNEL_SECRET
     if (!signature || !secret) {
