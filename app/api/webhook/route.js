@@ -1,12 +1,23 @@
+import crypto from 'crypto'
 import { processMessage } from '../../../src/ai/claudeClient'
 import { appendLog } from '../../../src/store/logStore'
 
 export const runtime = 'nodejs'
 
+function verifyLineSignature(rawBody, signature, secret) {
+  const hash = crypto
+    .createHmac('sha256', secret)
+    .update(rawBody)
+    .digest('base64')
+  return crypto.timingSafeEqual(Buffer.from(hash), Buffer.from(signature))
+}
+
 export async function POST(request) {
+  const rawBody = await request.text()
+
   let body
   try {
-    body = await request.json()
+    body = JSON.parse(rawBody)
   } catch {
     return Response.json({ error: 'Invalid JSON' }, { status: 400 })
   }
@@ -14,8 +25,16 @@ export async function POST(request) {
   const isMock = process.env.MOCK_MODE !== 'false'
   if (!isMock) {
     const signature = request.headers.get('x-line-signature')
-    if (!signature) {
-      return Response.json({ error: 'Missing x-line-signature' }, { status: 401 })
+    const secret = process.env.LINE_CHANNEL_SECRET
+    if (!signature || !secret) {
+      return Response.json({ error: 'Missing x-line-signature or LINE_CHANNEL_SECRET' }, { status: 401 })
+    }
+    try {
+      if (!verifyLineSignature(rawBody, signature, secret)) {
+        return Response.json({ error: 'Invalid signature' }, { status: 401 })
+      }
+    } catch {
+      return Response.json({ error: 'Signature verification failed' }, { status: 401 })
     }
   }
 

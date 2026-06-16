@@ -35,6 +35,13 @@ function detectMockSimilarity(query) {
   return 0.28;
 }
 
+function scoreChunk(query, chunkContent) {
+  const text = (query + ' ' + chunkContent).toLowerCase();
+  if (HIGH_KEYWORDS.some(kw => text.includes(kw)))   return 0.91;
+  if (MEDIUM_KEYWORDS.some(kw => text.includes(kw))) return 0.67;
+  return 0.28;
+}
+
 async function retrieveRulebookChunks(query) {
   const isMock = process.env.MOCK_MODE !== 'false';
 
@@ -53,10 +60,14 @@ async function retrieveRulebookChunks(query) {
     [true]
   );
 
-  const vectorSimilarity = detectMockSimilarity(query);
+  const scoredRows = rows
+    .map(row => ({ ...row, _score: scoreChunk(query, row.content) }))
+    .sort((a, b) => b._score - a._score);
+
+  const vectorSimilarity = scoredRows.length > 0 ? scoredRows[0]._score : 0.28;
   logger.debug({ query: query.slice(0, 50), vectorSimilarity, rowCount: rows.length }, 'Vector search (db)');
 
-  return { chunks: rows, vectorSimilarity };
+  return { chunks: scoredRows, vectorSimilarity };
 }
 
-module.exports = { retrieveRulebookChunks, detectMockSimilarity };
+module.exports = { retrieveRulebookChunks, detectMockSimilarity, scoreChunk };

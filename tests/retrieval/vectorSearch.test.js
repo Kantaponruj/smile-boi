@@ -90,6 +90,9 @@ describe('retrieveRulebookChunks (DB mode)', () => {
     expect(chunks).toHaveLength(1);
     expect(chunks[0].section_id).toBe('2.3');
     expect(typeof vectorSimilarity).toBe('number');
+    // per-chunk scoring: query 'ขอราคา' hits HIGH_KEYWORDS → score 0.91
+    expect(vectorSimilarity).toBe(0.91);
+    expect(chunks[0]).toHaveProperty('_score');
   });
 
   test('calls dbQuery with active_status=true', async () => {
