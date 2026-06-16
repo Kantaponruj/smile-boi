@@ -6,6 +6,16 @@ const { logTagging, logRefusal } = require('../models/TaggingLog');
 const logger = require('pino')();
 
 const INTENT_RESPONSE = {
+  payment_confirmation: {
+    tag: '#Payment_Confirmation', section: '5.2', llm_score: 0.93,
+    action: 'tag', missing: null, owner: 'admin',
+    descFn: (e) => `ลูกค้าส่งข้อความ "${e}" — แจ้งชำระเงินเรียบร้อยแล้ว รอทีมตรวจสอบสลิป อ้างอิงจาก Rulebook §5.2`,
+  },
+  order_confirmation: {
+    tag: '#Order_Confirmation', section: '3.2', llm_score: 0.92,
+    action: 'tag', missing: null, owner: 'admin',
+    descFn: (e) => `ลูกค้าส่งข้อความ "${e}" — ยืนยันคำสั่งซื้อแล้ว รอดำเนินการจัดเตรียมสินค้า อ้างอิงจาก Rulebook §3.2`,
+  },
   quotation: {
     tag: '#Quotation_Request', section: '2.3', llm_score: 0.90,
     action: 'tag', missing: null, owner: 'admin',
@@ -21,10 +31,25 @@ const INTENT_RESPONSE = {
     action: 'tag', missing: null, owner: 'admin',
     descFn: (e) => `ลูกค้าส่งข้อความ "${e}" — สอบถามช่องทางหรือวิธีการชำระเงิน อ้างอิงจาก Rulebook §5.1`,
   },
+  delivery_inquiry: {
+    tag: '#Delivery_Inquiry', section: '4.4', llm_score: 0.82,
+    action: 'tag', missing: null, owner: 'admin',
+    descFn: (e) => `ลูกค้าส่งข้อความ "${e}" — สอบถามสถานะการจัดส่งหรือติดตามพัสดุ อ้างอิงจาก Rulebook §4.4`,
+  },
+  promotion_inquiry: {
+    tag: '#Promotion_Inquiry', section: '2.2', llm_score: 0.75,
+    action: 'tag', missing: null, owner: 'admin',
+    descFn: (e) => `ลูกค้าส่งข้อความ "${e}" — สอบถามโปรโมชั่นหรือส่วนลดสินค้า อ้างอิงจาก Rulebook §2.2`,
+  },
   purchase_intent: {
     tag: '#Purchase_Intent', section: '3.1', llm_score: 0.68,
     action: 'tag', missing: null, owner: 'admin',
     descFn: (e) => `ลูกค้าส่งข้อความ "${e}" — แสดงความสนใจแต่ยังไม่ยืนยันการซื้อ อ้างอิงจาก Rulebook §3.1`,
+  },
+  product_inquiry: {
+    tag: '#Product_Inquiry', section: '2.1', llm_score: 0.65,
+    action: 'tag', missing: 'ต้องการทราบรายละเอียดสินค้าที่ลูกค้าสนใจเพื่อส่งข้อมูลที่ถูกต้อง', owner: 'admin',
+    descFn: (e) => `ลูกค้าส่งข้อความ "${e}" — สอบถามข้อมูลหรือรายละเอียดสินค้า อ้างอิงจาก Rulebook §2.1`,
   },
   follow_up: {
     tag: '#Follow_Up', section: '4.1', llm_score: 0.72,
