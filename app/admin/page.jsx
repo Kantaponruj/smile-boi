@@ -4,76 +4,67 @@ import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 
 const LEVEL = {
-  high:   { badge: 'bg-green-900/50 text-green-300 border border-green-800/50',   dot: 'bg-green-400',  label: 'HIGH' },
-  medium: { badge: 'bg-yellow-900/50 text-yellow-300 border border-yellow-800/50', dot: 'bg-yellow-400', label: 'MED' },
-  low:    { badge: 'bg-red-900/50 text-red-300 border border-red-800/50',          dot: 'bg-red-400',    label: 'LOW' },
+  high:   { cls: 'text-emerald-500',  label: 'HIGH' },
+  medium: { cls: 'text-amber-500',    label: 'MED' },
+  low:    { cls: 'text-rose-500',     label: 'LOW' },
 }
 
 const ACTION = {
-  tag:           { cls: 'text-green-400',  label: '✓ Tagged' },
-  tag_with_flag: { cls: 'text-yellow-400', label: '⚑ Flagged' },
-  refuse:        { cls: 'text-red-400',    label: '✕ Refused' },
+  tag:           { cls: 'text-zinc-500',    label: 'tagged' },
+  tag_with_flag: { cls: 'text-amber-600',   label: 'flagged' },
+  refuse:        { cls: 'text-rose-600',    label: 'refused' },
 }
 
-function StatCard({ label, value, color }) {
-  return (
-    <div className="rounded-2xl p-4 flex flex-col gap-1" style={{ background: '#1e2130', border: '1px solid rgba(255,255,255,0.05)' }}>
-      <span className="text-gray-500 text-xs uppercase tracking-wider">{label}</span>
-      <span className={`text-2xl font-bold ${color}`}>{value}</span>
-    </div>
-  )
-}
-
-function LogRow({ log }) {
+function LogRow({ log, index }) {
   const [expanded, setExpanded] = useState(false)
   const lv  = LEVEL[log.level]  || LEVEL.low
   const act = ACTION[log.action] || ACTION.refuse
   const score = log.score != null ? `${(log.score * 100).toFixed(0)}%` : '—'
-  const time  = log.timestamp ? new Date(log.timestamp).toLocaleTimeString('th-TH') : '—'
-  const date  = log.timestamp ? new Date(log.timestamp).toLocaleDateString('th-TH') : ''
+  const dt   = log.timestamp ? new Date(log.timestamp) : null
+  const time = dt ? dt.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) : '—'
+  const date = dt ? dt.toLocaleDateString('th-TH', { day: '2-digit', month: 'short' }) : ''
 
   return (
     <>
       <tr
         onClick={() => setExpanded(v => !v)}
-        className="border-b border-white/5 cursor-pointer transition-colors hover:bg-white/3"
+        className="group cursor-pointer border-b border-white/[0.04] transition-colors duration-75 hover:bg-white/[0.02]"
       >
-        <td className="px-4 py-3">
-          <span className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-0.5 rounded-full font-bold ${lv.badge}`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${lv.dot}`} />
+        <td className="pl-6 pr-2 py-3.5 text-zinc-700 text-[11px] font-mono tabular-nums w-10">
+          {String(index + 1).padStart(2, '0')}
+        </td>
+        <td className="px-3 py-3.5 w-14">
+          <span className={`text-[11px] font-mono font-semibold tracking-wide ${lv.cls}`}>
             {lv.label}
           </span>
         </td>
-        <td className="px-4 py-3 text-white text-sm font-medium">{log.tag || '—'}</td>
-        <td className="px-4 py-3">
-          <span className={`text-xs font-semibold ${act.cls}`}>{act.label}</span>
+        <td className="px-3 py-3.5 text-zinc-200 text-sm">{log.tag || '—'}</td>
+        <td className="px-3 py-3.5 w-20">
+          <span className={`text-[11px] ${act.cls}`}>{act.label}</span>
         </td>
-        <td className="px-4 py-3 text-gray-400 text-sm font-mono">{score}</td>
-        <td className="px-4 py-3 text-gray-500 text-xs truncate max-w-[160px]">{log.message}</td>
-        <td className="px-4 py-3 text-gray-600 text-xs">
-          <div>{date}</div>
-          <div>{time}</div>
+        <td className="px-3 py-3.5 w-16">
+          <span className="text-zinc-500 text-[11px] font-mono tabular-nums">{score}</span>
         </td>
-        <td className="px-4 py-3 text-gray-700 text-xs">
-          <svg xmlns="http://www.w3.org/2000/svg" className={`w-3 h-3 transition-transform ${expanded ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
+        <td className="px-3 py-3.5 max-w-[200px]">
+          <span className="text-zinc-600 text-xs truncate block">{log.message || '—'}</span>
+        </td>
+        <td className="px-3 pr-6 py-3.5 text-right w-24">
+          <div className="text-zinc-700 text-[11px] font-mono tabular-nums leading-snug">
+            <div>{date}</div>
+            <div>{time}</div>
+          </div>
         </td>
       </tr>
       {expanded && (
-        <tr className="border-b border-white/5">
-          <td colSpan={7} className="px-4 pb-4">
-            <div className="rounded-xl p-4 space-y-2 text-xs" style={{ background: '#161824', border: '1px solid rgba(255,255,255,0.05)' }}>
-              <div className="flex gap-4 text-gray-400">
-                <span><span className="text-gray-600">Case ID:</span> {log.case_id}</span>
-              </div>
+        <tr className="border-b border-white/[0.04]">
+          <td colSpan={7} className="pl-[72px] pr-6 pb-5 pt-0">
+            <div className="pt-3 space-y-2 text-xs border-t border-white/[0.04]">
+              <div className="text-zinc-700 font-mono text-[11px]">{log.case_id}</div>
               {log.description && (
-                <p className="text-gray-300 leading-relaxed">{log.description}</p>
+                <p className="text-zinc-400 leading-relaxed max-w-2xl">{log.description}</p>
               )}
               {log.missing_information && (
-                <div className="rounded-lg px-3 py-2 text-yellow-300" style={{ background: 'rgba(234,179,8,0.08)', border: '1px solid rgba(234,179,8,0.15)' }}>
-                  ⚠ {log.missing_information}
-                </div>
+                <p className="text-amber-600/70 leading-relaxed">{log.missing_information}</p>
               )}
             </div>
           </td>
@@ -84,11 +75,11 @@ function LogRow({ log }) {
 }
 
 export default function AdminPage() {
-  const [logs,         setLogs]         = useState([])
-  const [loading,      setLoading]      = useState(true)
-  const [lastRefresh,  setLastRefresh]  = useState(null)
-  const [filter,       setFilter]       = useState('all')
-  const [clearing,     setClearing]     = useState(false)
+  const [logs,        setLogs]        = useState([])
+  const [loading,     setLoading]     = useState(true)
+  const [lastRefresh, setLastRefresh] = useState(null)
+  const [filter,      setFilter]      = useState('all')
+  const [clearing,    setClearing]    = useState(false)
 
   const fetchLogs = useCallback(async () => {
     try {
@@ -126,79 +117,130 @@ export default function AdminPage() {
 
   const filtered = filter === 'all' ? logs : logs.filter(l => l.level === filter)
 
+  const FILTERS = [
+    { key: 'all',    label: 'ทั้งหมด', count: stats.total  },
+    { key: 'high',   label: 'HIGH',    count: stats.high   },
+    { key: 'medium', label: 'MED',     count: stats.medium },
+    { key: 'low',    label: 'LOW',     count: stats.low    },
+  ]
+
   return (
-    <div className="min-h-screen p-6" style={{ background: 'linear-gradient(135deg,#0f0f1a 0%,#1a1a2e 60%,#1a2040 100%)', fontFamily: "'Noto Sans Thai', sans-serif" }}>
-      <div className="max-w-5xl mx-auto space-y-6">
+    <div
+      className="min-h-screen py-10 px-6"
+      style={{ background: '#0c0c0e', fontFamily: "'Figtree', 'Noto Sans Thai', sans-serif" }}
+    >
+      <div className="max-w-5xl mx-auto space-y-8">
 
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-bold text-white">Admin Dashboard</h1>
-            <p className="text-gray-500 text-sm mt-0.5">smileChatBot — Tagging Log</p>
+        <div className="flex items-end justify-between pb-7 border-b border-white/[0.05]">
+          <div className="space-y-1.5">
+            <div className="text-zinc-700 text-[11px] font-mono tracking-[0.18em] uppercase">
+              smileBOI · admin
+            </div>
+            <h1 className="text-zinc-100 text-xl font-semibold tracking-tight">Tagging Log</h1>
           </div>
-          <div className="flex items-center gap-3">
+
+          <div className="flex items-center gap-1.5">
             {lastRefresh && (
-              <span className="text-gray-600 text-xs">อัปเดต {lastRefresh.toLocaleTimeString('th-TH')}</span>
+              <span className="text-zinc-700 text-[11px] font-mono mr-2">
+                {lastRefresh.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })}
+              </span>
             )}
-            <button onClick={fetchLogs}
-                    className="text-xs px-3 py-1.5 rounded-lg transition-colors text-gray-300 hover:text-white"
-                    style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' }}>
-              ↻ Refresh
+            <button
+              onClick={fetchLogs}
+              title="Refresh"
+              className="h-7 w-7 flex items-center justify-center rounded text-zinc-600 hover:text-zinc-300 transition-colors text-sm"
+              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}
+            >
+              ↻
             </button>
-            <button onClick={clearAll} disabled={clearing}
-                    className="text-xs px-3 py-1.5 rounded-lg transition-colors disabled:opacity-40"
-                    style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.2)', color: '#f87171' }}>
-              {clearing ? 'กำลังล้าง...' : 'ล้าง Log'}
+            <button
+              onClick={clearAll}
+              disabled={clearing}
+              className="h-7 px-3 rounded text-[11px] text-rose-700 hover:text-rose-400 transition-colors disabled:opacity-30"
+              style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
+            >
+              {clearing ? '...' : 'ล้าง log'}
             </button>
-            <Link href="/"
-                  className="text-xs px-3 py-1.5 rounded-lg transition-colors text-gray-300 hover:text-white"
-                  style={{ background: 'rgba(6,199,85,0.1)', border: '1px solid rgba(6,199,85,0.2)', color: '#06C755' }}>
+            <Link
+              href="/"
+              className="h-7 px-3 rounded text-[11px] text-zinc-500 hover:text-zinc-200 transition-colors inline-flex items-center"
+              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}
+            >
               Chat Demo →
             </Link>
           </div>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-4 gap-3">
-          <StatCard label="ทั้งหมด"  value={stats.total}  color="text-white" />
-          <StatCard label="HIGH"     value={stats.high}   color="text-green-400" />
-          <StatCard label="MEDIUM"   value={stats.medium} color="text-yellow-400" />
-          <StatCard label="LOW"      value={stats.low}    color="text-red-400" />
+        {/* Stats — inline, no cards */}
+        <div className="flex items-center gap-2 text-sm font-mono tabular-nums">
+          <span className="text-zinc-200 font-semibold">{stats.total}</span>
+          <span className="text-zinc-700 text-xs ml-0.5">total</span>
+          <span className="text-zinc-800 mx-2">·</span>
+          <span className="text-emerald-500 font-semibold">{stats.high}</span>
+          <span className="text-zinc-700 text-xs ml-0.5">high</span>
+          <span className="text-zinc-800 mx-1">·</span>
+          <span className="text-amber-500 font-semibold">{stats.medium}</span>
+          <span className="text-zinc-700 text-xs ml-0.5">med</span>
+          <span className="text-zinc-800 mx-1">·</span>
+          <span className="text-rose-500 font-semibold">{stats.low}</span>
+          <span className="text-zinc-700 text-xs ml-0.5">low</span>
         </div>
 
-        {/* Filter */}
-        <div className="flex gap-2">
-          {['all','high','medium','low'].map(f => (
-            <button key={f} onClick={() => setFilter(f)}
-                    className="text-xs px-3 py-1.5 rounded-full transition-all capitalize"
-                    style={{
-                      background: filter === f ? 'rgba(6,199,85,0.15)' : 'rgba(255,255,255,0.04)',
-                      border: filter === f ? '1px solid rgba(6,199,85,0.4)' : '1px solid rgba(255,255,255,0.06)',
-                      color: filter === f ? '#06C755' : '#9ca3af',
-                    }}>
-              {f === 'all' ? 'ทั้งหมด' : f.toUpperCase()}
-            </button>
-          ))}
+        {/* Filter tabs */}
+        <div className="flex gap-1">
+          {FILTERS.map(f => {
+            const active = filter === f.key
+            return (
+              <button
+                key={f.key}
+                onClick={() => setFilter(f.key)}
+                className="h-7 px-3 rounded text-[11px] transition-all duration-75"
+                style={{
+                  background: active ? 'rgba(255,255,255,0.07)' : 'transparent',
+                  border:     active ? '1px solid rgba(255,255,255,0.10)' : '1px solid transparent',
+                  color:      active ? '#e4e4e2' : '#52524e',
+                }}
+              >
+                {f.label}
+                <span
+                  className="ml-1.5"
+                  style={{ color: active ? '#71717a' : '#3f3f46' }}
+                >
+                  {f.count}
+                </span>
+              </button>
+            )
+          })}
         </div>
 
         {/* Table */}
-        <div className="rounded-2xl overflow-hidden" style={{ background: '#1e2130', border: '1px solid rgba(255,255,255,0.05)' }}>
+        <div style={{ background: '#111114', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '8px', overflow: 'hidden' }}>
           {loading ? (
-            <div className="p-12 text-center text-gray-600 text-sm">กำลังโหลด...</div>
+            <div className="py-20 text-center text-zinc-800 text-[11px] font-mono tracking-[0.2em]">
+              LOADING…
+            </div>
           ) : filtered.length === 0 ? (
-            <div className="p-12 text-center text-gray-600 text-sm">ยังไม่มี log — ลองส่งข้อความใน Chat Demo</div>
+            <div className="py-20 text-center space-y-2">
+              <div className="text-zinc-700 text-xs">ยังไม่มี log</div>
+              <div className="text-zinc-800 text-[11px]">ลองส่งข้อความใน Chat Demo</div>
+            </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-white/5">
-                    {['ระดับ', 'Tag', 'Action', 'Score', 'ข้อความ', 'เวลา', ''].map(h => (
-                      <th key={h} className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">{h}</th>
-                    ))}
+                  <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                    <th className="pl-6 pr-2 py-3 text-left text-zinc-700 text-[10px] font-mono uppercase tracking-widest w-10">#</th>
+                    <th className="px-3 py-3 text-left text-zinc-700 text-[10px] uppercase tracking-widest w-14">Lvl</th>
+                    <th className="px-3 py-3 text-left text-zinc-700 text-[10px] uppercase tracking-widest">Tag</th>
+                    <th className="px-3 py-3 text-left text-zinc-700 text-[10px] uppercase tracking-widest w-20">Action</th>
+                    <th className="px-3 py-3 text-left text-zinc-700 text-[10px] uppercase tracking-widest w-16">Score</th>
+                    <th className="px-3 py-3 text-left text-zinc-700 text-[10px] uppercase tracking-widest">Message</th>
+                    <th className="px-3 pr-6 py-3 text-right text-zinc-700 text-[10px] uppercase tracking-widest w-24">Time</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filtered.map((log, i) => <LogRow key={i} log={log} />)}
+                  {filtered.map((log, i) => <LogRow key={i} log={log} index={i} />)}
                 </tbody>
               </table>
             </div>
