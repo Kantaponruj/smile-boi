@@ -4,7 +4,8 @@ const { dbQuery } = require('../db/client');
 let memStore = [];
 
 function useDb() {
-  return process.env.MOCK_MODE !== 'false' ? false : !!process.env.DATABASE_URL;
+  const isMock = process.env.MOCK_MODE !== 'false';
+  return !isMock && !!process.env.DATABASE_URL;
 }
 
 async function appendLog(entry) {

@@ -1,11 +1,17 @@
 // src/db/client.js
 const { neon } = require('@neondatabase/serverless');
 
-function dbQuery(text, params) {
+let _sql = null;
+
+function getSql() {
   const url = process.env.DATABASE_URL;
   if (!url) throw new Error('DATABASE_URL is not set');
-  const sql = neon(url);
-  return sql(text, params);
+  if (!_sql) _sql = neon(url);
+  return _sql;
+}
+
+function dbQuery(text, params) {
+  return getSql()(text, params);
 }
 
 module.exports = { dbQuery };
